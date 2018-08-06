@@ -67,7 +67,7 @@ abbreviations = [
 ]
 # by gustable
 sentence = [
-    r"[A-Z][^.]*\."
+    r"[A-Z][^\.!?]*[\.!?]"
 ]
 
 
@@ -86,16 +86,16 @@ if sys.version_info < (3, 0):
     patterns = patterns.decode('utf-8')
 patterns = re.compile(patterns, re.VERBOSE | re.UNICODE)
 
-
-def tokenize(text):
+def sentencize(text):
     """
-    tokenize text for word segmentation
+    parse text for sentence segmentation
 
     :param text: raw text input
-    :return: tokenize text
+    :return: sentencize text
     """
     #text = Text(text)
     text = text.replace("\t", " ")
-    tokens = re.findall(patterns, text)
+    regexp = re.compile(r'([A-Z][^\.!?]*[\.!?])', re.M)
+    tokens = regexp.findall(text)
     print(tokens)
-    return u" ".join([token[0] for token in tokens])
+    return tokens #u" ".join([token[0] for token in tokens])
