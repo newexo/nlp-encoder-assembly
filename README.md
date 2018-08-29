@@ -18,11 +18,4 @@ At this point, pre-processing would be finished, and this assembly would be comp
 
 - For this experiment, I will create a Variational AutoEncoder (VAE) that takes in input sequences that have been created from a Word2Vec style embedder. (I'm not yet sure about the semantic similarity between Phrase2Vec phrases versus PCA & tSNE embedding space similarities.)
 
-- Create a Keras Encoder and Loss Function
-
-- Sentiment prediction based on Latent Space model (may be excluded to begin with)
-
-- Create a decoder (I believe more complexity could be added here.)
-
-- Create an autoencoder with two outputs, one reconstructed input and the other, predicted sentiment.
 
