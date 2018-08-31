@@ -20,15 +20,11 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --upgrade pip
 
 RUN pip install \
-    flask \
     h5py \
     keras==2.0.5 \
     numpy \
-    pandas \
     scipy \
     scikit-learn \
-    jupyter \
-    ipython 
     
 ##Install Tensorflow
 ## uncomment one or the other of the next lines depending on whether
