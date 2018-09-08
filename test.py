@@ -1,6 +1,7 @@
 import unittest
 
-import tests.test_example
+import tests.testDocLoader
+import tests.testExample
 
 class countsuite():
     def __init__(self):
@@ -15,7 +16,8 @@ class countsuite():
 def suite():
     s = countsuite()
 
-    s.add(tests.test_example.test_example)
+    s.add(tests.testDocLoader.TestDocLoader)
+    s.add(tests.testExample.test_example)
     
     return s.s
 
