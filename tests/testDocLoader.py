@@ -11,8 +11,13 @@ class TestDocLoader(unittest.TestCase):
     def testLoadDocs(self):
         docs = docLoader.loadDocs('testData')
         self.assertEqual(3, len(docs))
-        self.assertEqual(26, len(docs[0]))
-        self.assertEqual('12/11/89\n', docs[0][0])
+        actual = {len(docs[i]) for i in range(len(docs))}
+        expected = {26, 31, 48}
+        self.assertEqual(expected, actual)
+        for i in range(len(docs)):
+            if len(docs[i]) == 26:
+                doc26 = docs[i]
+        self.assertEqual('12/11/89\n', doc26[0])
 
     def testCollectLines(self):
         testRomeo = ['SAMPSON.\n',
