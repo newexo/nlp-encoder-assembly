@@ -96,9 +96,6 @@ def wordFreq(wordDict):
             except:
                 pass
             countDict[term] = count #MAJOR ERROR HERE "TypeError: unhashable type: 'dict'"
-
-    for k, v in countDict.items():
-        print(k, v)
     return countDict
 
 def computeIDF(docList):
@@ -121,4 +118,3 @@ def computeTFIDF(tfBow, idfs):
     for word, val in tfBow.items():
         tfidf[word] = val*idfs[word]
     return tfidf
-
