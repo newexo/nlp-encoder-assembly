@@ -1,6 +1,23 @@
 import re
 from pathlib import Path
 
+def toParagraphs(lines):
+    paragraphs = []
+    p = []
+    for line in lines:
+        line = line.strip()
+        if len(line):
+            p.append(line)
+        else:
+            if len(p):
+                paragraph = " ".join(p)
+                paragraphs.append(paragraph)
+                p = []
+    return paragraphs
+
+def cleanWhiteSpace(lines):
+    return [x for x in map(lambda line: line.strip(), lines) if len(x)]
+
 def loadDocs(author1, *authors2):
     #load a selection of texts by selected authors
     auths = [author1]
