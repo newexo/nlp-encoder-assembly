@@ -48,6 +48,16 @@ class TestDocLoader(unittest.TestCase):
               '\n']
         self.assertEqual(expected, spoken)
 
-    # def testFoo(self):
-    #     self.assertTrue(False, "incomplete test")
+    def testSentencer(self):
+        testSentence = ['Liches are high level clerics or magic-users who have become\n', 
+              'a very special undead. Before becoming a lich the cleric or\n', 
+              'the magic user must have been at least 14th level in life,\n', 
+              'although 18th level is most common.\n', 
+              'once a lich is created it might drop in level ,but below 10th\n', 
+              'level one cannot exists.']
+        sentences = docLoader.sentencer(testSentence)
+
+        expected = ['Liches are high level clerics or magic-users who have become a very special undead.']
+        self.assertEqual(expected, sentences[0])
+
 
