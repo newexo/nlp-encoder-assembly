@@ -1,3 +1,6 @@
+# Modified from Alex Adam
+# http://alexadam.ca/ml/2017/05/05/keras-vae.html
+
 from keras import objectives, backend as K
 from keras.layers import Bidirectional, Dense, Embedding, Input, Lambda, LSTM, RepeatVector, TimeDistributed
 from keras.models import Model
