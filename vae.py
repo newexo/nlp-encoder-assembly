@@ -7,13 +7,12 @@ from keras.models import Model
 import keras
 
 from keras.callbacks import ModelCheckpoint
-from keras.datasets import imdb
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import os
 
 class VAE(object):
-    def create(self, vocab_size=500, max_length=3300, latent_rep_size=200): # Change max_length to fit phrases
+    def create(self, vocab_size=500, max_length=300, latent_rep_size=200): # Change max_length to fit phrases
         self.encoder = None
         self.decoder = None
         self.sentiment_predictor = None
@@ -36,6 +35,8 @@ class VAE(object):
         self.autoencoder.compile(optimizer='Adam',
                                  loss=[vae_loss, 'binary_crossentropy'],
                                  metrics=['accuracy'])
+
+        print(self.autoencoder.inputs)
         
     def _build_encoder(self, x, latent_rep_size=200, max_length=300, epsilon_std=0.01):
         h = Bidirectional(LSTM(500, return_sequences=True, name='lstm_1'), merge_mode='concat')(x)
@@ -94,6 +95,10 @@ class VAE(object):
     def train(self, X_train, X_train_one_hot, y_train, X_test, x_test_one_hot, y_test):
         checkpointer = self.create_model_checkpoint('models', 'rnn_ae')
 
+        print(X_train.shape)
+        print(X_train_one_hot.shape)
+        print(y_train.shape)
+
         self.autoencoder.fit(x=X_train, y={'decoded_mean': X_train_one_hot, 'pred': y_train},
-                              batch_size=10, epochs=10, callbacks=[checkpointer],
-                              validation_data=(X_test, {'decoded_mean': x_test_one_hot, 'pred':  y_test}))
+                          batch_size=10, epochs=10, callbacks=[checkpointer],
+                          validation_data=(X_test, {'decoded_mean': x_test_one_hot, 'pred':  y_test}))
