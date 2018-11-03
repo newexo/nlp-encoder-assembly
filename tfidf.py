@@ -1,4 +1,6 @@
 import re
+import collections
+import numpy as np
 from pathlib import Path
 
 def readStopList():
@@ -47,7 +49,7 @@ def collectPhrases(sentences, stoplist):
         phrases = re.split(";+", ' '.join(candidate_phrases))
 
     # Clean up phrases    
-    re2 = re.compile('[^\.!?,"(){}\*:]*[\.!?,"(){}\*:]')
+    re2 = re.compile(r'[^\.!?,"(){}\*:]*[\.!?,"(){}\*:]')
     for s in range(len(phrases)):
         phrases[s] = re.sub(re2, '', phrases[s])
         phrases[s] = phrases[s].strip(' ')
@@ -71,32 +73,54 @@ def collectWords(sentences):
     wordList = []
     for u in range(len(sentences)):
         for v in sentences[u]:
-            words = re.split("\\s+", v)
+            words = re.split(r'\s+', v)
             wordList.extend(words)
-    #Establish wordDict
-    wordDict = {}
-    for w in range(len(wordList)):
-        newWord = wordList[w]
-        newWord = newWord.lower()
-        newWord = newWord.replace('.', '')
-        wordDict[w] = newWord
-    return wordDict
 
-def wordFreq(wordDict):
-    #Perform word counts on dict
-    countDict = {}
-    for x in range(len(wordDict)):
-        term = wordDict[x]
-        #print(wordDict)
-        count = 1
-        for y in range(len(wordDict)):
-            try:
-                if wordDict[y].find(term) > 0:
-                    count += 1
-            except:
-                pass
-            countDict[term] = count #MAJOR ERROR HERE "TypeError: unhashable type: 'dict'"
-    return countDict
+    return wordList
+
+def stripPunctWS(words):
+    stripped = []
+    re2 = re.compile(r'[^\.!?,"(){}\*:]*[\.!?,"(){}\*:]')
+    for w in words:
+        w = re.sub(re2, '', w)
+        w = w.strip()
+        if len(w):
+            stripped.append(w)
+    return stripped
+
+def toLower(words):
+    return [w.lower() for w in words]
+
+def getVocab(words, threshold=99):
+    wc = collections.Counter(swd)
+    return {w for w in wc if wc[w] > threshold}
+
+def vocabList(vocabSet):
+    vl = list(vocabSet)
+    vl.sort
+    return vl
+
+def toUnk(w, vocabSet, unk='unk'):
+    if w in vocabSet:
+        return w
+    return unk
+
+def getTokenDict(vocabList, unk='unk'):
+    extendVocabList = [unk] + list(vocabList)
+    td = {extendVocabList[i]:i for i in range(len(extendVocabList))}
+    return extendVocabList, td
+
+def toTokenList(words, td):
+    return [td[w] for w in words]
+
+def toBOW(tokens, vocabSize):
+    x = np.zeros(vocabSize)
+    if len(tokens):
+        cc = collections.Counter(tokens)
+        for key in cc.keys():           
+            x[key] = cc[key]
+        x / float(np.sum(x))
+    return x
 
 def computeIDF(docList):
     # Calculates the weight of rare words across all docs
@@ -118,3 +142,4 @@ def computeTFIDF(tfBow, idfs):
     for word, val in tfBow.items():
         tfidf[word] = val*idfs[word]
     return tfidf
+    

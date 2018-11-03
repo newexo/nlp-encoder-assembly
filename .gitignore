@@ -114,3 +114,4 @@ Thumbs.db
 # Directories to ignore
 ignore/
 models/
+data/shakespeare/
