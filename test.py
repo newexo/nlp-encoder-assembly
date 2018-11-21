@@ -3,6 +3,7 @@ import unittest
 import tests.testDocLoader
 import tests.testTfidf
 import tests.testExample
+import tests.testVae
 
 class countsuite():
     def __init__(self):
@@ -20,6 +21,7 @@ def suite():
     s.add(tests.testDocLoader.TestDocLoader)
     s.add(tests.testTfidf.TestTfidf)
     s.add(tests.testExample.test_example)
+    s.add(tests.testVae.TestVae)
     
     return s.s
 
