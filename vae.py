@@ -11,7 +11,7 @@ from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import os
 
-class VAE(object):
+class VAEAlexAdam(object):
     def create(self, vocab_size=500, max_length=300, latent_rep_size=200): # Change max_length to fit phrases
         self.encoder = None
         self.decoder = None

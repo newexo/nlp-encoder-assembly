@@ -1,9 +1,9 @@
 import unittest
 
-import tests.testDocLoader
-import tests.testTfidf
-import tests.testExample
-import tests.testVae
+from tests.testDocLoader import TestDocLoader
+from tests.testTfidf import TestTfidf
+from tests.testExample import test_example
+from tests.testVae import TestVaeAlexAdam
 
 class countsuite():
     def __init__(self):
@@ -18,10 +18,10 @@ class countsuite():
 def suite():
     s = countsuite()
 
-    s.add(tests.testDocLoader.TestDocLoader)
-    s.add(tests.testTfidf.TestTfidf)
-    s.add(tests.testExample.test_example)
-    s.add(tests.testVae.TestVae)
+    s.add(TestDocLoader)
+    s.add(TestTfidf)
+    s.add(test_example)
+    s.add(TestVaeAlexAdam)
     
     return s.s
 
