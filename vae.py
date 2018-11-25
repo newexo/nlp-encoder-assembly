@@ -11,15 +11,23 @@ from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import os
 
+# class Hyper(object):
+#     def __init__(self, vocab_size=500, embedding_dim=64, max_length=300, latent_rep_size=200, encoder_hidden_dim=500, decoder_hidden_dim=500):
+#         self.vocab_size = vocab_size
+#         self.max_length = max_length
+#         self.latent_rep_size = latent_rep_size
+#         self.encoder_hidden_dim = encoder_hidden_dim
+#         self.decoder_hidden_dim = decoder_hidden_dim
+
 class VAEAlexAdam(object):
-    def create(self, vocab_size=500, max_length=300, latent_rep_size=200): # Change max_length to fit phrases
+    def __init__(self, vocab_size=500, embedding_dim=64, max_length=300, latent_rep_size=200):
         self.encoder = None
         self.decoder = None
         self.sentiment_predictor = None
         self.autoencoder = None
 
         x = Input(shape=(max_length,))
-        x_embed = Embedding(vocab_size, 64, input_length=max_length)(x)
+        x_embed = Embedding(vocab_size, embedding_dim, input_length=max_length)(x)
 
         vae_loss, encoded = self._build_encoder(x_embed, latent_rep_size=latent_rep_size, max_length=max_length)
         self.encoder = Model(inputs=x, outputs=encoded)
@@ -35,8 +43,6 @@ class VAEAlexAdam(object):
         self.autoencoder.compile(optimizer='Adam',
                                  loss=[vae_loss, 'binary_crossentropy'],
                                  metrics=['accuracy'])
-
-        print(self.autoencoder.inputs)
         
     def _build_encoder(self, x, latent_rep_size=200, max_length=300, epsilon_std=0.01):
         h = Bidirectional(LSTM(500, return_sequences=True, name='lstm_1'), merge_mode='concat')(x)

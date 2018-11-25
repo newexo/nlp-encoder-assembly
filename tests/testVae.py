@@ -90,13 +90,47 @@ class TestVaeAlexAdam(unittest.TestCase):
         pass
 
     def test_create_vae(self):
-        #self.assertTrue(False)
         MAX_LENGTH = 300
         NUM_WORDS = 1000
-        model = vae.VAEAlexAdam()
-        model.create(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
 
         preds = model.autoencoder.predict(x=self.X)
 
-        self.assertEqual(preds[0].shape, (3, 300, 1000))
-        self.assertEqual(preds[1].shape, (3,1))
+        expected = (3, 300, 1000)
+        self.assertEqual(expected, preds[0].shape)
+        expected = (3, 1)
+        self.assertEqual(expected, preds[1].shape)
+
+        expected = [(1000, 64),
+                    (64, 2000),
+                    (500, 2000),
+                    (2000,),
+                    (64, 2000),
+                    (500, 2000),
+                    (2000,),
+                    (1000, 2000),
+                    (500, 2000),
+                    (2000,),
+                    (1000, 2000),
+                    (500, 2000),
+                    (2000,),
+                    (1000, 435),
+                    (435,),
+                    (435, 200),
+                    (200,),
+                    (435, 200),
+                    (200,),
+                    (200, 2000),
+                    (500, 2000),
+                    (2000,),
+                    (500, 2000),
+                    (500, 2000),
+                    (2000,),
+                    (200, 100),
+                    (100,),
+                    (500, 1000),
+                    (1000,),
+                    (100, 1),
+                    (1,)]
+        actual = [w.shape for w in model.autoencoder.get_weights()]
+        self.assertEqual(expected, actual)
