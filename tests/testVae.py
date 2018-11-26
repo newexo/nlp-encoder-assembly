@@ -4,6 +4,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import unittest
 import vae
 import numpy as np
+from numpy.linalg import norm
 
 
 class TestVaeAlexAdam(unittest.TestCase):
@@ -134,3 +135,27 @@ class TestVaeAlexAdam(unittest.TestCase):
                     (1,)]
         actual = [w.shape for w in model.autoencoder.get_weights()]
         self.assertEqual(expected, actual)
+
+        self.assertEqual(preds[0].shape, (3, 300, 1000))
+        self.assertEqual(preds[1].shape, (3,1))
+        
+    def test_save_and_load_vae(self):
+        #self.assertTrue(False)
+        loaded = False
+        MAX_LENGTH = 300
+        NUM_WORDS = 1000
+        model = vae.VAE()
+        model.create(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        
+        model2 = vae.VAE()
+        model2.create(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        
+        preds1= model.autoencoder.predict(x=self.X)
+        model.autoencoder.save('./autoencode.h5')
+        
+        model2.autoencoder.load_weights('./autoencode.h5')
+        preds2= model2.autoencoder.predict(x=self.X)
+        
+        
+        self.assertTrue(norm(np.array(preds1[0]) - np.array(preds2[0])) <0.02)
+
