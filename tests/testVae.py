@@ -144,16 +144,16 @@ class TestVaeAlexAdam(unittest.TestCase):
         loaded = False
         MAX_LENGTH = 300
         NUM_WORDS = 1000
-        model = vae.VAE()
+        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
         model.create(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
         
-        model2 = vae.VAE()
+        model2 = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
         model2.create(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
         
         preds1= model.autoencoder.predict(x=self.X)
-        model.autoencoder.save('./autoencode.h5')
+        model.autoencoder.save('../data/autoencode.h5')
         
-        model2.autoencoder.load_weights('./autoencode.h5')
+        model2.autoencoder.load_weights('../data/autoencode.h5')
         preds2= model2.autoencoder.predict(x=self.X)
         
         
