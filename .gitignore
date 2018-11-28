@@ -115,3 +115,4 @@ Thumbs.db
 ignore/
 models/
 data/shakespeare/
+*.h5
