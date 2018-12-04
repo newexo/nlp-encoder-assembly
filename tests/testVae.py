@@ -5,7 +5,10 @@ import unittest
 import vae
 import numpy as np
 from numpy.linalg import norm
+import tensorflow as tf
 
+from keras.backend import backend as K
+from numpy.random import seed
 
 class TestVaeAlexAdam(unittest.TestCase):
     def setUp(self):
@@ -159,3 +162,62 @@ class TestVaeAlexAdam(unittest.TestCase):
         
         self.assertTrue(norm(np.array(preds1[0]) - np.array(preds2[0])) <0.02)
 
+
+
+    def test_model_evaluation(self):
+	#self.assertTrue(False)
+        #from keras.backend import backend as K
+        seed_value = 1234
+        seed(seed_value)
+       	
+        tf.set_random_seed(seed_value)
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+        sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+        #K.set_session(sess)
+        #tf.keras.backend.set_session(sess)
+        loaded = False
+
+        MAX_LENGTH = 300
+        NUM_WORDS = 1000
+
+        temp = np.zeros((self.X.shape[0], MAX_LENGTH, NUM_WORDS))
+        temp[np.expand_dims(np.arange(self.X.shape[0]), axis=0).reshape(self.X.shape[0], 1), np.repeat(np.array([np.arange(MAX_LENGTH)]), self.X.shape[0], axis=0), self.X] = 1
+        self.X_one_hot = temp
+
+      
+        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        out = model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=10)
+	
+        expected = [3.0580520629882812,
+ 2.3692352771759033,
+ 0.6888167858123779,
+ 0.0011111111380159855,
+ 0.6666666865348816]
+	
+        self.assertEqual(expected, out)
+
+
+    def test_model_prediction(self):
+        #self.assertTrue(False)
+
+        seed_value = 1234
+        seed(seed_value)
+
+        tf.set_random_seed(seed_value)
+        
+        loaded = False
+
+        MAX_LENGTH = 300
+        NUM_WORDS = 1000
+
+        temp = np.zeros((self.X.shape[0], MAX_LENGTH, NUM_WORDS))
+        temp[np.expand_dims(np.arange(self.X.shape[0]), axis=0).reshape(self.X.shape[0], 1), np.repeat(np.array([np.arange(MAX_LENGTH)]), self.X.shape[0], axis=0), self.X] = 1
+        self.X_one_hot = temp
+
+
+        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=1)
+        pred = model.autoencoder.predict(self.X[0].reshape(1,-1))[1][0][0]
+        expected = 0.4988190531730652
+        self.assertEqual(np.float(pred),np.float(expected))
+	
