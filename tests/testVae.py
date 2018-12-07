@@ -2,13 +2,15 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import unittest
-import vae
 import numpy as np
 from numpy.linalg import norm
 import tensorflow as tf
 
 from keras.backend import backend as K
 from numpy.random import seed
+
+import vae
+import random_init
 
 class TestVaeAlexAdam(unittest.TestCase):
     def setUp(self):
@@ -87,25 +89,7 @@ class TestVaeAlexAdam(unittest.TestCase):
 
         self.y = np.array([1, 0, 1])
 
-
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_create_vae(self):
-        MAX_LENGTH = 300
-        NUM_WORDS = 1000
-        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
-
-        preds = model.autoencoder.predict(x=self.X)
-
-        expected = (3, 300, 1000)
-        self.assertEqual(expected, preds[0].shape)
-        expected = (3, 1)
-        self.assertEqual(expected, preds[1].shape)
-
-        expected = [(1000, 64),
+        self.expected_shapes = [(1000, 64),
                     (64, 2000),
                     (500, 2000),
                     (2000,),
@@ -136,45 +120,79 @@ class TestVaeAlexAdam(unittest.TestCase):
                     (1000,),
                     (100, 1),
                     (1,)]
+
+
+    def tearDown(self):
+        pass
+
+    def test_create_vae(self):
+        MAX_LENGTH = 300
+        NUM_WORDS = 1000
+        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+
+        preds = model.autoencoder.predict(x=self.X)
+
+        expected = (3, 300, 1000)
+        self.assertEqual(expected, preds[0].shape)
+        expected = (3, 1)
+        self.assertEqual(expected, preds[1].shape)
+
+        expected = self.expected_shapes
         actual = [w.shape for w in model.autoencoder.get_weights()]
         self.assertEqual(expected, actual)
 
         self.assertEqual(preds[0].shape, (3, 300, 1000))
         self.assertEqual(preds[1].shape, (3,1))
         
+    def test_random_init(self):
+        MAX_LENGTH = 300
+        NUM_WORDS = 1000
+
+        expected = 0.023570226039551584
+        actual = random_init.scale([100, 200])
+        self.assertAlmostEqual(expected, actual)
+
+        r0 = np.random.RandomState(42)
+        expected = [random_init.scale(shape) * r0.uniform(size=shape) for shape in self.expected_shapes]
+
+        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        r1 = np.random.RandomState(42)
+        actual = random_init.random_w(r1, model.autoencoder)
+
+        for u, v in zip(expected, actual):
+            self.assertAlmostEqual(0, norm(u - v))
+
     def test_save_and_load_vae(self):
-        #self.assertTrue(False)
         loaded = False
         MAX_LENGTH = 300
         NUM_WORDS = 1000
+
+        r0 = np.random.RandomState(42)
+        expected = [random_init.scale(shape) * r0.uniform(size=shape) for shape in self.expected_shapes]
+
         model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
-        
-        
-        model2 = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
-       
-        
-        preds1= model.autoencoder.predict(x=self.X)
+        model.autoencoder.set_weights(expected)
+
         model.autoencoder.save('data/autoencode.h5')
         
+        model2 = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
         model2.autoencoder.load_weights('data/autoencode.h5')
-        preds2= model2.autoencoder.predict(x=self.X)
+
+        actual = model2.autoencoder.get_weights()
         
-        
-        self.assertTrue(norm(np.array(preds1[0]) - np.array(preds2[0])) <0.02)
+        for u, v in zip(expected, actual):
+            self.assertAlmostEqual(0, norm(u - v), 6)
 
 
 
     def test_model_evaluation(self):
-	#self.assertTrue(False)
-        #from keras.backend import backend as K
         seed_value = 1234
         seed(seed_value)
        	
         tf.set_random_seed(seed_value)
         session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
         sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
-        #K.set_session(sess)
-        #tf.keras.backend.set_session(sess)
+
         loaded = False
 
         MAX_LENGTH = 300
@@ -189,17 +207,15 @@ class TestVaeAlexAdam(unittest.TestCase):
         out = model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=10)
 	
         expected = [3.0580520629882812,
- 2.3692352771759033,
- 0.6888167858123779,
- 0.0011111111380159855,
- 0.6666666865348816]
+                    2.3692352771759033,
+                    0.6888167858123779,
+                    0.0011111111380159855,
+                    0.6666666865348816]
 	
         self.assertEqual(expected, out)
 
 
     def test_model_prediction(self):
-        #self.assertTrue(False)
-
         seed_value = 1234
         seed(seed_value)
 
@@ -219,5 +235,5 @@ class TestVaeAlexAdam(unittest.TestCase):
         model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=1)
         pred = model.autoencoder.predict(self.X[0].reshape(1,-1))[1][0][0]
         expected = 0.4988190531730652
-        self.assertEqual(np.float(pred),np.float(expected))
+        self.assertEqual(np.float(pred), np.float(expected))
 	
