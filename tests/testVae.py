@@ -128,7 +128,8 @@ class TestVaeAlexAdam(unittest.TestCase):
     def test_create_vae(self):
         MAX_LENGTH = 300
         NUM_WORDS = 1000
-        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model = vae.VAEAlexAdam(h)
 
         preds = model.autoencoder.predict(x=self.X)
 
@@ -147,6 +148,7 @@ class TestVaeAlexAdam(unittest.TestCase):
     def test_random_init(self):
         MAX_LENGTH = 300
         NUM_WORDS = 1000
+        h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
 
         expected = 0.023570226039551584
         actual = random_init.scale([100, 200])
@@ -155,7 +157,7 @@ class TestVaeAlexAdam(unittest.TestCase):
         r0 = np.random.RandomState(42)
         expected = [random_init.scale(shape) * r0.uniform(size=shape) for shape in self.expected_shapes]
 
-        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model = vae.VAEAlexAdam(h)
         r1 = np.random.RandomState(42)
         actual = random_init.random_w(r1, model.autoencoder)
 
@@ -166,16 +168,17 @@ class TestVaeAlexAdam(unittest.TestCase):
         loaded = False
         MAX_LENGTH = 300
         NUM_WORDS = 1000
+        h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
 
         r0 = np.random.RandomState(42)
         expected = [random_init.scale(shape) * r0.uniform(size=shape) for shape in self.expected_shapes]
 
-        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model = vae.VAEAlexAdam(h)
         model.autoencoder.set_weights(expected)
 
         model.autoencoder.save('data/autoencode.h5')
         
-        model2 = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model2 = vae.VAEAlexAdam(h)
         model2.autoencoder.load_weights('data/autoencode.h5')
 
         actual = model2.autoencoder.get_weights()
@@ -183,12 +186,10 @@ class TestVaeAlexAdam(unittest.TestCase):
         for u, v in zip(expected, actual):
             self.assertAlmostEqual(0, norm(u - v), 6)
 
-
-
     def test_model_evaluation(self):
         seed_value = 1234
         seed(seed_value)
-       	
+           
         tf.set_random_seed(seed_value)
         session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
         sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
@@ -197,23 +198,22 @@ class TestVaeAlexAdam(unittest.TestCase):
 
         MAX_LENGTH = 300
         NUM_WORDS = 1000
+        h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
 
         temp = np.zeros((self.X.shape[0], MAX_LENGTH, NUM_WORDS))
         temp[np.expand_dims(np.arange(self.X.shape[0]), axis=0).reshape(self.X.shape[0], 1), np.repeat(np.array([np.arange(MAX_LENGTH)]), self.X.shape[0], axis=0), self.X] = 1
         self.X_one_hot = temp
-
       
-        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model = vae.VAEAlexAdam(h)
         out = model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=10)
-	
+    
         expected = [3.0580520629882812,
                     2.3692352771759033,
                     0.6888167858123779,
                     0.0011111111380159855,
                     0.6666666865348816]
-	
+    
         self.assertEqual(expected, out)
-
 
     def test_model_prediction(self):
         seed_value = 1234
@@ -225,15 +225,15 @@ class TestVaeAlexAdam(unittest.TestCase):
 
         MAX_LENGTH = 300
         NUM_WORDS = 1000
+        h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
 
         temp = np.zeros((self.X.shape[0], MAX_LENGTH, NUM_WORDS))
         temp[np.expand_dims(np.arange(self.X.shape[0]), axis=0).reshape(self.X.shape[0], 1), np.repeat(np.array([np.arange(MAX_LENGTH)]), self.X.shape[0], axis=0), self.X] = 1
         self.X_one_hot = temp
 
 
-        model = vae.VAEAlexAdam(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
+        model = vae.VAEAlexAdam(h)
         model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=1)
         pred = model.autoencoder.predict(self.X[0].reshape(1,-1))[1][0][0]
         expected = 0.4988190531730652
         self.assertEqual(np.float(pred), np.float(expected))
-	

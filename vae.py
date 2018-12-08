@@ -11,69 +11,100 @@ from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import os
 
-# class Hyper(object):
-#     def __init__(self, vocab_size=500, embedding_dim=64, max_length=300, latent_rep_size=200, encoder_hidden_dim=500, decoder_hidden_dim=500):
-#         self.vocab_size = vocab_size
-#         self.max_length = max_length
-#         self.latent_rep_size = latent_rep_size
-#         self.encoder_hidden_dim = encoder_hidden_dim
-#         self.decoder_hidden_dim = decoder_hidden_dim
+
+class Hyper(object):
+    def __init__(self, vocab_size=500, 
+                        embedding_dim=64, 
+                        max_length=300, 
+                        latent_rep_size=200, 
+                        encoder_hidden_dim=500, 
+                        decoder_hidden_dim=500,
+                        encoder_output_dim=435,
+                        epsilon_std=0.01):
+        self.vocab_size = vocab_size
+        self.embedding_dim = embedding_dim
+        self.max_length = max_length
+        self.latent_rep_size = latent_rep_size
+        self.encoder_hidden_dim = encoder_hidden_dim
+        self.decoder_hidden_dim = decoder_hidden_dim
+        self.encoder_output_dim = encoder_output_dim
+        self.epsilon_std = epsilon_std
+
 
 class VAEAlexAdam(object):
-    def __init__(self, vocab_size=500, embedding_dim=64, max_length=300, latent_rep_size=200):
+    def __init__(self, h):
+        self.h = h
         self.encoder = None
         self.decoder = None
         self.sentiment_predictor = None
         self.autoencoder = None
 
-        x = Input(shape=(max_length,))
-        x_embed = Embedding(vocab_size, embedding_dim, input_length=max_length)(x)
+        x = Input(shape=(self.h.max_length,))
+        x_embed = Embedding(self.h.vocab_size, self.h.embedding_dim, input_length=self.h.max_length)(x)
 
-        vae_loss, encoded = self._build_encoder(x_embed, latent_rep_size=latent_rep_size, max_length=max_length)
+        vae_loss, encoded = self._build_encoder(x_embed)
         self.encoder = Model(inputs=x, outputs=encoded)
 
-        encoded_input = Input(shape=(latent_rep_size,))
+        encoded_input = Input(shape=(self.h.latent_rep_size,))
         predicted_sentiment = self._build_sentiment_predictor(encoded_input)
         self.sentiment_predictor = Model(encoded_input, predicted_sentiment)
 
-        decoded = self._build_decoder(encoded_input, vocab_size, max_length)
+        decoded = self._build_decoder(encoded_input)
         self.decoder = Model(encoded_input, decoded)
 
-        self.autoencoder = Model(inputs=x, outputs=[self._build_decoder(encoded, vocab_size, max_length), self._build_sentiment_predictor(encoded)])
+        self.autoencoder = Model(inputs=x, 
+            outputs=[self._build_decoder(encoded), 
+            self._build_sentiment_predictor(encoded)])
         self.autoencoder.compile(optimizer='Adam',
                                  loss=[vae_loss, 'binary_crossentropy'],
                                  metrics=['accuracy'])
         
-    def _build_encoder(self, x, latent_rep_size=200, max_length=300, epsilon_std=0.01):
-        h = Bidirectional(LSTM(500, return_sequences=True, name='lstm_1'), merge_mode='concat')(x)
-        h = Bidirectional(LSTM(500, return_sequences=False, name='lstm_2'), merge_mode='concat')(h)
-        h = Dense(435, activation='relu', name='dense_1')(h)
+    def _build_encoder(self, x):
+        h = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
+                return_sequences=True, 
+                name='encoder_rnn_1'), 
+            merge_mode='concat')(x)
+        h = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
+                return_sequences=False, 
+                name='encoder_rnn_2'),
+            merge_mode='concat')(h)
+        h = Dense(self.h.encoder_output_dim, activation='relu', name='encoder_output')(h)
+
+        latent_rep_size = self.h.latent_rep_size
+        epsilon_std = self.h.epsilon_std
 
         def sampling(args):
             z_mean_, z_log_var_ = args
             batch_size = K.shape(z_mean_)[0]
-            epsilon = K.random_normal(shape=(batch_size, latent_rep_size), mean=0., stddev=epsilon_std)
+            epsilon = K.random_normal(shape=(batch_size, 
+                    latent_rep_size), 
+                mean=0, 
+                stddev=epsilon_std)
             return z_mean_ + K.exp(z_log_var_ / 2) * epsilon
 
-        z_mean = Dense(latent_rep_size, name='z_mean', activation='linear')(h)
-        z_log_var = Dense(latent_rep_size, name='z_log_var', activation='linear')(h)
+        z_mean = Dense(self.h.latent_rep_size, name='z_mean', activation='linear')(h)
+        z_log_var = Dense(self.h.latent_rep_size, name='z_log_var', activation='linear')(h)
 
         def vae_loss(x, x_decoded_mean):
             x = K.flatten(x)
             x_decoded_mean = K.flatten(x_decoded_mean)
-            xent_loss = max_length * objectives.binary_crossentropy(x, x_decoded_mean)
+            xent_loss = self.h.max_length * objectives.binary_crossentropy(x, x_decoded_mean)
             kl_loss = - 0.5 * K.mean(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
             return xent_loss + kl_loss
 
-        return (vae_loss, Lambda(sampling, output_shape=(latent_rep_size,), name='lambda')([z_mean, z_log_var]))
-    
-    def _build_decoder(self, encoded, vocab_size, max_length):
-        repeated_context = RepeatVector(max_length)(encoded)
+        return (vae_loss, Lambda(sampling, output_shape=(self.h.latent_rep_size,), name='lambda')([z_mean, z_log_var]))
 
-        h = LSTM(500, return_sequences=True, name='dec_lstm_1')(repeated_context)
-        h = LSTM(500, return_sequences=True, name='dec_lstm_2')(h)
+    def _build_decoder(self, encoded):
+        repeated_context = RepeatVector(self.h.max_length)(encoded)
 
-        decoded = TimeDistributed(Dense(vocab_size, activation='softmax'), name='decoded_mean')(h)
+        h = LSTM(self.h.decoder_hidden_dim, 
+            return_sequences=True, 
+            name='decoder_rnn_1')(repeated_context)
+        h = LSTM(self.h.decoder_hidden_dim,
+            return_sequences=True, 
+            name='decoder_rnn_2')(h)
+
+        decoded = TimeDistributed(Dense(self.h.vocab_size, activation='softmax'), name='decoded_mean')(h)
 
         return decoded
     
