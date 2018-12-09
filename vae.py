@@ -110,8 +110,6 @@ class vae(object):
         pass
 
     def train(self, X_train, X_train_one_hot, y_train, X_test, x_test_one_hot, y_test):
-        checkpointer = self.create_model_checkpoint('models', 'rnn_ae')
-
         print(X_train.shape)
         print(X_train_one_hot.shape)
         print(y_train.shape)
