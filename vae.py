@@ -1,6 +1,3 @@
-# Modified from Alex Adam
-# http://alexadam.ca/ml/2017/05/05/keras-vae.html
-
 from keras import objectives, backend as K
 from keras.layers import Bidirectional, Dense, Embedding, Input, Lambda, LSTM, RepeatVector, TimeDistributed
 from keras.models import Model
@@ -31,7 +28,7 @@ class Hyper(object):
         self.epsilon_std = epsilon_std
 
 
-class VAEAlexAdam(object):
+class vae(object):
     def __init__(self, h):
         self.h = h
         self.encoder = None
@@ -42,24 +39,24 @@ class VAEAlexAdam(object):
         x = Input(shape=(self.h.max_length,))
         x_embed = Embedding(self.h.vocab_size, self.h.embedding_dim, input_length=self.h.max_length)(x)
 
-        vae_loss, encoded = self._build_encoder(x_embed)
+        vae_loss, encoded = self.build_encoder(x_embed)
         self.encoder = Model(inputs=x, outputs=encoded)
 
         encoded_input = Input(shape=(self.h.latent_rep_size,))
-        predicted_sentiment = self._build_sentiment_predictor(encoded_input)
+        predicted_sentiment = self.build_auxiliary(encoded_input)
         self.sentiment_predictor = Model(encoded_input, predicted_sentiment)
 
-        decoded = self._build_decoder(encoded_input)
+        decoded = self.build_decoder(encoded_input)
         self.decoder = Model(encoded_input, decoded)
 
         self.autoencoder = Model(inputs=x, 
-            outputs=[self._build_decoder(encoded), 
-            self._build_sentiment_predictor(encoded)])
+            outputs=[self.build_decoder(encoded), 
+            self.build_auxiliary(encoded)])
         self.autoencoder.compile(optimizer='Adam',
                                  loss=[vae_loss, 'binary_crossentropy'],
                                  metrics=['accuracy'])
         
-    def _build_encoder(self, x):
+    def build_encoder(self, x):
         h = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
                 return_sequences=True, 
                 name='encoder_rnn_1'), 
@@ -94,7 +91,7 @@ class VAEAlexAdam(object):
 
         return (vae_loss, Lambda(sampling, output_shape=(self.h.latent_rep_size,), name='lambda')([z_mean, z_log_var]))
 
-    def _build_decoder(self, encoded):
+    def build_decoder(self, encoded):
         repeated_context = RepeatVector(self.h.max_length)(encoded)
 
         h = LSTM(self.h.decoder_hidden_dim, 
@@ -108,26 +105,9 @@ class VAEAlexAdam(object):
 
         return decoded
     
-    def _build_sentiment_predictor(self, encoded):
-        h = Dense(100, activation='linear')(encoded)
-
-        return Dense(1, activation='sigmoid', name='pred')(h)
-
-    def create_model_checkpoint(self, dir, model_name):
-        filepath = dir + '/' + \
-                   model_name + "-{epoch:02d}-{val_decoded_mean_acc:.2f}-{val_pred_loss:.2f}.h5"
-        directory = os.path.dirname(filepath)
-
-        try:
-            os.stat(directory)
-        except:
-            os.mkdir(directory)
-
-        checkpointer = ModelCheckpoint(filepath=filepath,
-                                       verbose=1,
-                                       save_best_only=False)
-
-        return checkpointer
+    def build_auxiliary(self, encoded):
+        # this should break if not overridden
+        pass
 
     def train(self, X_train, X_train_one_hot, y_train, X_test, x_test_one_hot, y_test):
         checkpointer = self.create_model_checkpoint('models', 'rnn_ae')
@@ -137,5 +117,5 @@ class VAEAlexAdam(object):
         print(y_train.shape)
 
         self.autoencoder.fit(x=X_train, y={'decoded_mean': X_train_one_hot, 'pred': y_train},
-                          batch_size=10, epochs=10, callbacks=[checkpointer],
+                          batch_size=10, epochs=10,
                           validation_data=(X_test, {'decoded_mean': x_test_one_hot, 'pred':  y_test}))
