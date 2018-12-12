@@ -6,7 +6,11 @@ import bytelevel
 
 class TestBytelevel(unittest.TestCase):
     def setUp(self):
+        self.r = np.random.RandomState(42)
         self.data = ['extraordinary series of adventure', 'in the South Seas and elsewhere  ']
+        self.foobar = ["foo", "bar"]
+        self.foobar_onehot = bytelevel.onehot(bytelevel.encode(self.foobar))
+        self.foobar_prediction = 0.5 * self.foobar_onehot + 0.48 * self.r.rand(*self.foobar_onehot.shape) 
 
     def tearDown(self):
         pass
@@ -22,11 +26,24 @@ class TestBytelevel(unittest.TestCase):
         actual = bytelevel.encode(self.data)
         self.assertEqual(0, norm(expected - actual))
 
-    # def testOnehot(self):
-    #     self.assertTrue(False)
+    def testOnehot(self):
+        expected = np.zeros((2, 3, 256))
+        expected[0, 0, 102] = 1
+        expected[0, 1, 111] = 1
+        expected[0, 2, 111] = 1
+        expected[1, 0, 98] = 1
+        expected[1, 1, 97] = 1
+        expected[1, 2, 114] = 1
 
-    # def testDecode(self):
-    #     self.assertTrue(False)
+        actual = bytelevel.onehot(bytelevel.encode(self.foobar))
+        self.assertEqual(0, norm(expected - actual))
 
-    # def testPrediction2(self):
-    #     self.assertTrue(False)
+    def testDecode(self):
+        expected = self.data
+        actual = bytelevel.decode(bytelevel.encode(self.data))
+        self.assertEqual(expected, actual)
+
+    def testPrediction2str(self):
+        expected = self.foobar
+        actual = bytelevel.prediction2str(self.foobar_prediction)
+        self.assertEqual(expected, actual)

@@ -20,5 +20,5 @@ def decode(a):
 
 def prediction2str(p):
     a = p.argmax(axis=2)
-    return nparray2str(a)
+    return decode(a)
     
