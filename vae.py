@@ -1,4 +1,4 @@
-from keras import objectives, backend as K
+from keras import objectives, optimizers, backend as K
 from keras.layers import Bidirectional, Dense, Embedding, Input, Lambda, LSTM, RepeatVector, TimeDistributed
 from keras.models import Model
 import keras
@@ -13,6 +13,7 @@ class Hyper(object):
     def __init__(self, vocab_size=500, 
                         embedding_dim=64, 
                         max_length=300, 
+                        lr=0.001,
                         latent_rep_size=200, 
                         encoder_hidden_dim=500, 
                         decoder_hidden_dim=500,
@@ -21,6 +22,7 @@ class Hyper(object):
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
         self.max_length = max_length
+        self.lr = lr
         self.latent_rep_size = latent_rep_size
         self.encoder_hidden_dim = encoder_hidden_dim
         self.decoder_hidden_dim = decoder_hidden_dim
@@ -52,7 +54,8 @@ class vae(object):
         self.autoencoder = Model(inputs=x, 
             outputs=[self.build_decoder(encoded), 
             self.build_auxiliary(encoded)])
-        self.autoencoder.compile(optimizer='Adam',
+        self.optimizer = optimizers.Adam(lr=self.h.lr)
+        self.autoencoder.compile(optimizer=self.optimizer,
                                  loss=[vae_loss, 'binary_crossentropy'],
                                  metrics=['accuracy'])
         
@@ -109,11 +112,11 @@ class vae(object):
         # this should break if not overridden
         pass
 
-    def train(self, X_train, X_train_one_hot, y_train, X_test, x_test_one_hot, y_test):
+    def train(self, X_train, X_train_one_hot, y_train, X_test, x_test_one_hot, y_test, batch_size=10, epochs=10):
         print(X_train.shape)
         print(X_train_one_hot.shape)
         print(y_train.shape)
 
         self.autoencoder.fit(x=X_train, y={'decoded_mean': X_train_one_hot, 'pred': y_train},
-                          batch_size=10, epochs=10,
+                          batch_size=batch_size, epochs=epochs,
                           validation_data=(X_test, {'decoded_mean': x_test_one_hot, 'pred':  y_test}))

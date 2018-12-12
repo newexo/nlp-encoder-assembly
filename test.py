@@ -1,5 +1,6 @@
 import unittest
 
+from tests.testBytelevel import TestBytelevel
 from tests.testDocLoader import TestDocLoader
 from tests.testTfidf import TestTfidf
 from tests.testExample import test_example
@@ -18,6 +19,7 @@ class countsuite():
 def suite():
     s = countsuite()
 
+    s.add(TestBytelevel)
     s.add(TestDocLoader)
     s.add(TestTfidf)
     s.add(test_example)
