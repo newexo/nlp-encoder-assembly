@@ -108,6 +108,7 @@ ENV/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
 # .idea files
 .idea
 
@@ -116,3 +117,7 @@ ignore/
 models/
 data/shakespeare/
 *.h5
+
+# specific files to ignore
+vae_mlp_decoder.png
+vae_mlp_encoder.png
