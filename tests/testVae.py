@@ -9,7 +9,7 @@ import tensorflow as tf
 from keras.backend import backend as K
 from numpy.random import seed
 
-import vae
+import vae_old as vae
 from VAEAlexAdam import VAEAlexAdam
 from . import random_init
 
