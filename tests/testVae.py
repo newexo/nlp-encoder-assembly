@@ -11,7 +11,7 @@ from numpy.random import seed
 
 import vae
 from VAEAlexAdam import VAEAlexAdam
-import random_init
+from . import random_init
 
 class TestVaeAlexAdam(unittest.TestCase):
     def setUp(self):
