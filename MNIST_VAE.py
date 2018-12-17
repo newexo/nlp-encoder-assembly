@@ -1,8 +1,6 @@
-from keras.layers import Input, Dense, Lambda, Layer
+from keras.layers import Input, Dense
 from keras.models import Model
 from keras.optimizers import RMSprop
-from keras import backend as K
-from keras import metrics
 
 import vae
 
@@ -19,11 +17,11 @@ class Hyper(vae.Hyper):
         vae.Hyper.__init__(self,            
             batch_size=batch_size,
             lr=lr, 
-            original_dim=784,
             latent_dim=latent_dim,
             intermediate_dim=intermediate_dim,
             epochs=epochs,
             epsilon_std=epsilon_std)
+        self.original_dim = original_dim
 
 
 class MnistVae(vae.Vae):
@@ -44,8 +42,8 @@ class MnistVae(vae.Vae):
 
     def build_decoder(self, z):
         decoder_h, decoder_mean = self.decoder_layers
-        h_decoded = decoder_h(z)
-        return decoder_mean(h_decoded)
+        h = decoder_h(z)
+        return decoder_mean(h)
     
     def build_generator(self):
         decoder_input = Input(shape=(self.h.latent_dim,))

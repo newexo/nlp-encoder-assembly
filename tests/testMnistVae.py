@@ -189,7 +189,8 @@ class TestMnistVae(unittest.TestCase):
                 validation_data=(x_test, x_test))
 
         actual = repr(history.history)
-        expected = "{'val_loss': [543.7113850911459, 543.6832071940104], 'loss': [551.5591918945313, 543.6121643066406]}"
+
+        expected = "{'val_loss': [545.1936645507812, 543.7349650065104], 'loss': [557.9398864746094, 544.1513793945312]}"
         self.assertEqual(expected, actual)
 
     def test_model_encode(self):
