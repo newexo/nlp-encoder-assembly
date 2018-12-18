@@ -44,10 +44,6 @@ class TextVae(vae.Vae):
         return Adam(lr=self.h.lr)
         
     def compute_vae_loss(self, x, x_decoded_mean, z_mean, z_log_var):
-        print("shapes")
-        print(x.shape)
-        print(x.dtype)
-        print(x_decoded_mean.shape)
         x = K.flatten(x)
         x_decoded_mean = K.flatten(x_decoded_mean)
         xent_loss = self.h.max_length * objectives.binary_crossentropy(x, x_decoded_mean)
@@ -101,4 +97,3 @@ class TextVae(vae.Vae):
         h = decoder_rnn_2(h)
 
         return Model(decoder_input, decoder_mean(h))
-        
