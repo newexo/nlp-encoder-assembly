@@ -51,16 +51,21 @@ class TextVae(vae.Vae):
         return xent_loss + kl_loss
         
     def build_encoder(self):
-        x = Input(shape=(self.h.max_length,))
-        self.x_embed = Embedding(self.h.vocab_size, self.h.embedding_dim, input_length=self.h.max_length)(x)
-        h = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
-                return_sequences=True, 
-                name='encoder_rnn_1'), 
-            merge_mode='concat')(self.x_embed)
-        h = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
-                return_sequences=False, 
-                name='encoder_rnn_2'),
-            merge_mode='concat')(h)
+        x = Input(shape=(self.h.max_length,), name='text_input')
+        self.embedder = Embedding(self.h.vocab_size, 
+            self.h.embedding_dim, 
+            input_length=self.h.max_length, name='embedder')
+        self.encoder_rnn_1 = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
+                return_sequences=True), 
+            merge_mode='concat',
+            name='encoder_rnn_1')
+        self.encoder_rnn_2 = Bidirectional(LSTM(self.h.encoder_hidden_dim, 
+                return_sequences=False),
+            merge_mode='concat', 
+            name='encoder_rnn_2')
+        h = self.embedder(x)
+        h = self.encoder_rnn_1(h)
+        h = self.encoder_rnn_2(h)
 
         return x, Dense(self.h.intermediate_dim, activation='relu', name='encoder_output')(h)
             
@@ -78,7 +83,7 @@ class TextVae(vae.Vae):
         h_decoded = decoder_h(z)
         return decoder_mean(h_decoded)
 
-    def build_decoder(self, encoded):
+    def build_decoder(self, encoded):   
         decoder_rnn_1, decoder_rnn_2, decoder_mean = self.decoder_layers
 
         h = RepeatVector(self.h.max_length)(encoded)
