@@ -122,3 +122,4 @@ vae_mlp_decoder.png
 vae_mlp_encoder.png
 triggers/
 data/mudlogs/
+*.h5
