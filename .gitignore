@@ -115,4 +115,6 @@ Thumbs.db
 ignore/
 models/
 data/shakespeare/
+triggers/
+data/mudlogs/
 *.h5
