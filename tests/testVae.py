@@ -9,8 +9,9 @@ import tensorflow as tf
 from keras.backend import backend as K
 from numpy.random import seed
 
-import vae
-import random_init
+import vae_old as vae
+from VAEAlexAdam import VAEAlexAdam
+from . import random_init
 
 class TestVaeAlexAdam(unittest.TestCase):
     def setUp(self):
@@ -129,7 +130,7 @@ class TestVaeAlexAdam(unittest.TestCase):
         MAX_LENGTH = 300
         NUM_WORDS = 1000
         h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
-        model = vae.VAEAlexAdam(h)
+        model = VAEAlexAdam(h)
 
         preds = model.autoencoder.predict(x=self.X)
 
@@ -157,7 +158,7 @@ class TestVaeAlexAdam(unittest.TestCase):
         r0 = np.random.RandomState(42)
         expected = [random_init.scale(shape) * r0.uniform(size=shape) for shape in self.expected_shapes]
 
-        model = vae.VAEAlexAdam(h)
+        model = VAEAlexAdam(h)
         r1 = np.random.RandomState(42)
         actual = random_init.random_w(r1, model.autoencoder)
 
@@ -173,12 +174,12 @@ class TestVaeAlexAdam(unittest.TestCase):
         r0 = np.random.RandomState(42)
         expected = [random_init.scale(shape) * r0.uniform(size=shape) for shape in self.expected_shapes]
 
-        model = vae.VAEAlexAdam(h)
+        model = VAEAlexAdam(h)
         model.autoencoder.set_weights(expected)
 
         model.autoencoder.save('data/autoencode.h5')
         
-        model2 = vae.VAEAlexAdam(h)
+        model2 = VAEAlexAdam(h)
         model2.autoencoder.load_weights('data/autoencode.h5')
 
         actual = model2.autoencoder.get_weights()
@@ -204,7 +205,7 @@ class TestVaeAlexAdam(unittest.TestCase):
         temp[np.expand_dims(np.arange(self.X.shape[0]), axis=0).reshape(self.X.shape[0], 1), np.repeat(np.array([np.arange(MAX_LENGTH)]), self.X.shape[0], axis=0), self.X] = 1
         self.X_one_hot = temp
       
-        model = vae.VAEAlexAdam(h)
+        model = VAEAlexAdam(h)
         out = model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=10)
     
         expected = [3.0580520629882812,
@@ -232,7 +233,7 @@ class TestVaeAlexAdam(unittest.TestCase):
         self.X_one_hot = temp
 
 
-        model = vae.VAEAlexAdam(h)
+        model = VAEAlexAdam(h)
         model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=1)
         pred = model.autoencoder.predict(self.X[0].reshape(1,-1))[1][0][0]
         expected = 0.4988190531730652
