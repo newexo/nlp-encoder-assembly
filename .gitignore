@@ -116,8 +116,10 @@ Thumbs.db
 ignore/
 models/
 data/shakespeare/
-*.h5
 
 # specific files to ignore
 vae_mlp_decoder.png
 vae_mlp_encoder.png
+triggers/
+data/mudlogs/
+*.h5
