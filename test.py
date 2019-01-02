@@ -1,12 +1,13 @@
 import unittest
 
-from tests.testBytelevel import TestBytelevel
-from tests.testDocLoader import TestDocLoader
-from tests.testExample import test_example
-from tests.testMnistVae import TestMnistVae
-from tests.testRandomInit import TestRandomInit
-from tests.testTfidf import TestTfidf
-from tests.testVae import TestVaeAlexAdam
+from tests.test_bytelevel import TestBytelevel
+from tests.test_doc_loader import TestDocLoader
+from tests.test_example import TestExample
+from tests.test_hyper import TestHyper
+from tests.test_MNIST_VAE import TestMnistVae
+from tests.test_random_init import TestRandomInit
+from tests.test_TFIDF import TestTfidf
+from tests.test_VAE import TestVaeAlexAdam
 
 
 class countsuite():
@@ -16,7 +17,7 @@ class countsuite():
 
     def add(self, tests):
         self.count += 1
-        print("%d, %s" % (self.count, tests.__name__))
+        print("%d: %s" % (self.count, tests.__name__))
         self.s.addTest(unittest.makeSuite(tests))
 
 
@@ -25,7 +26,8 @@ def suite():
 
     s.add(TestBytelevel)
     s.add(TestDocLoader)
-    s.add(test_example)
+    s.add(TestExample)
+    s.add(TestHyper)
     s.add(TestMnistVae)
     s.add(TestRandomInit)
     s.add(TestTfidf)
