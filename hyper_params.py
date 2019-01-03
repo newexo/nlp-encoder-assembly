@@ -134,7 +134,10 @@ class RnnHyper(object):
             name=name)
     
 class DeconvHyper(object):
-    def __init__(self, filters, kernel_size=3, upsample=2):
+    def __init__(self, 
+            filters, 
+            kernel_size=3, 
+            upsample=2):
         self.filters = filters
         self.kernel_size = kernel_size
         self.upsample = upsample
@@ -154,7 +157,12 @@ class DeconvHyper(object):
         print("upsample = %d" % self.upsample)
         
     def make_layers(self, name='dcnn'):
-        conv = Conv1D(self.filters, self.kernel_size, strides=1, padding='causal', activation='relu', name=name)
+        conv = Conv1D(self.filters, 
+            self.kernel_size, 
+            strides=1, 
+            padding='causal', 
+            activation='relu', 
+            name=name)
         return conv, UpSampling1D(self.upsample)
 
 class RnnCnnHyper(object):
