@@ -42,6 +42,10 @@ class EmbeddingHyper(object):
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
         
+    @property
+    def default_name(self):
+        return 'embedder'
+
     @staticmethod
     def Random(r):
         embedding_dim = r.choice([2 ** i for i in range(6, 10)])
@@ -66,6 +70,10 @@ class ConvHyper(object):
         self.kernel_size = kernel_size
         self.strides = strides
         
+    @property
+    def default_name(self):
+        return 'cnn'
+
     @staticmethod
     def Random(r):
         filters = r.choice([2 ** i for i in range(6, 10)])
@@ -98,6 +106,10 @@ class RnnHyper(object):
         self.is_bidirectional = is_bidirectional
         self.return_sequences = return_sequences
         
+    @property
+    def default_name(self):
+        return 'rnn'
+
     @staticmethod
     def Random(r, return_sequences):
         hidden_dim = r.choice([2 ** i for i in range(6, 10)])
@@ -142,6 +154,10 @@ class DeconvHyper(object):
         self.kernel_size = kernel_size
         self.upsample = upsample
         
+    @property
+    def default_name(self):
+        return 'dcnn'
+
     @staticmethod
     def Random(r, upsample=None):
         filters = r.choice([2 ** i for i in range(6, 10)])
@@ -164,37 +180,3 @@ class DeconvHyper(object):
             activation='relu', 
             name=name)
         return conv, UpSampling1D(self.upsample)
-
-class RnnCnnHyper(object):
-    def __init__(self, embedder, conv, rnn):
-        self.embedder = embedder
-        self.conv = conv
-        self.rnn = rnn
-        
-    @staticmethod
-    def Random(r):
-        embedder = EmbeddingHyper.Random(r)
-        conv = ConvHyper.Random(r)
-        rnn = RnnHyper.Random(r)
-        
-        return RnnCnnHyper(embedder, conv, rnn)
-
-    def display(self):
-        self.embedder.display()
-        print()
-        self.conv.display()
-        print()
-        self.rnn.display()
-        print()
-        
-    def make_layers(self, name, return_sequences):
-        if name is not None and len(name):
-            prefix = '%s_' % name
-        else:
-            prefix = ''
-        embedder = self.embedder.make_layer(name='%sembedder' % prefix)
-        conv = self.conv.make_layer(name='%sconv' % prefix)
-        rnn = self.rnn.make_layer(name='%srnn' % prefix, return_sequences=return_sequences)
-        dense = Dense(self.embedder.vocab_size, activation='softmax', name='%sprobs' % prefix)
-        return embedder, conv, rnn, dense
-    
