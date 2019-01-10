@@ -11,26 +11,40 @@ class TestTextDecoder(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_properties(self):
-        embed_h = EmbeddingHyper(256, 103)
-        conv_h = ConvHyper(89, 6, 4)
-        rnn_h = RnnHyper(101, is_lstm=False, is_bidirectional=False, return_sequences=False)
-        hyper = te.Hyper(embed_h, [conv_h, rnn_h])
-
-        self.assertEqual(256, hyper.vocab_size)
-        self.assertEqual(103, hyper.embedding_dim)
-        self.assertFalse(hyper.return_sequences)
-        self.assertEqual(101, hyper.encoding.hidden_dim)
-        self.assertFalse(hyper.encoding.is_lstm)
-        self.assertFalse(hyper.encoding.is_bidirectional)
-
-        self.assertTrue(False, 'test dropout')
-
     def test_make_layers(self):
-        self.assertTrue(False)
+        rnn_h = RnnHyper(256, 
+            is_lstm=False,
+            is_bidirectional=False,
+            return_sequences=True, 
+            unroll=True)
+        deconv_h = DeconvHyper(128)
+        hyper = td.Hyper(256, [rnn_h, deconv_h])
+
+        decoder = hyper.make_layer()
+        rnn, deconv = decoder.layers
+        self.assertEqual('decoder_rnn', rnn.name)
+        self.assertEqual('decoder_dcnn', deconv.conv.name)
+        self.assertEqual('probs', decoder.dense.name)
 
     def test_model_shapes(self):
-        self.assertTrue(False)
+        rnn_h = RnnHyper(256, 
+            is_lstm=False,
+            is_bidirectional=False,
+            return_sequences=True, 
+            unroll=True)
+        deconv_h = DeconvHyper(128, 6, 4)
+        hyper = td.Hyper(256, [rnn_h, deconv_h])
 
-    def test_predict(self):
-        self.assertTrue(False)
+        decoder = hyper.make_layer()
+        x = Input(shape=(128,), name='text_input')
+
+        h = decoder(x, 64)
+        self.assertEqual(3, len(h.shape))
+        self.assertEqual(64, h.shape[1])
+        self.assertEqual(256, h.shape[2])
+
+
+        h = decoder(x, 128)
+        self.assertEqual(3, len(h.shape))
+        self.assertEqual(128, h.shape[1])
+        self.assertEqual(256, h.shape[2])

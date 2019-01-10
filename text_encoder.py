@@ -1,22 +1,20 @@
-import hyper_params as hp
+import seq_transform
 
 
-class TextEncoder(object):
+class TextEncoder(seq_transform.SeqTransform):
     def __init__(self, embedder, layers):
+        seq_transform.SeqTransform.__init__(self, layers)
         self.embedder = embedder
-        self.layers = layers
 
     def __call__(self, x):
         h = self.embedder(x)
-        for layer in self.layers:
-            h = layer(h)
-        return h
+        return seq_transform.SeqTransform.__call__(self, h)
 
 
-class Hyper(object):
+class Hyper(seq_transform.Hyper):
     def __init__(self, embedder, layers):
+        seq_transform.Hyper.__init__(self, layers)
         self.embedder = embedder
-        self.layers = layers
 
     @property
     def default_name(self):
@@ -32,19 +30,13 @@ class Hyper(object):
     
     @property
     def encoding(self):
-        return self.layers[-1]
-    
-    @property
-    def return_sequences(self):
-        return self.encoding.return_sequences
+        return self.transform
 
     def display(self):
         self.embedder.display()
-        for layer in self.layers:
-            layer.display()
+        seq_transform.Hyper.display(self)
     
     def make_layer(self, name='encoder'):
-        prefix = hp.name_prefix(name)
         embedder = self.embedder.make_layer()
-        layers = [layer.make_layer(name=prefix + layer.default_name) for layer in self.layers]
-        return TextEncoder(embedder, layers)
+        layers = seq_transform.Hyper.make_layer(self, name)
+        return TextEncoder(embedder, layers.layers)

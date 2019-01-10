@@ -8,11 +8,6 @@ def name_prefix(prefix):
     return '%s_' % prefix
 
 
-def rename(prefix, name):
-    prefix = name_prefix(prefix)
-    return prefix + name
-
-
 class Hyper(object):
     def __init__(self, 
             lr=0.001,
@@ -78,6 +73,18 @@ class ConvHyper(object):
     def default_name(self):
         return 'cnn'
 
+    @property
+    def upsample(self):
+        return 1
+
+    @property
+    def downsample(self):
+        return self.strides
+
+    @property
+    def return_sequences(self):
+        return True
+
     @staticmethod
     def random(r):
         filters = r.choice([2 ** i for i in range(6, 10)])
@@ -106,16 +113,26 @@ class RnnHyper(object):
             is_lstm, 
             is_bidirectional, 
             return_sequences,
-            dropout=0):
+            dropout=0,
+            unroll=False):
         self.hidden_dim = hidden_dim
         self.is_lstm = is_lstm
         self.is_bidirectional = is_bidirectional
         self.return_sequences = return_sequences
         self.dropout = dropout
+        self.unroll = unroll
         
     @property
     def default_name(self):
         return 'rnn'
+
+    @property
+    def upsample(self):
+        return 1
+
+    @property
+    def downsample(self):
+        return 1
 
     @staticmethod
     def random(r, return_sequences):
@@ -153,13 +170,14 @@ class RnnHyper(object):
         if self.is_bidirectional:
             rnn = make_rnn(self.hidden_dim, 
                 return_sequences=self.return_sequences,
-                dropout=self.dropout)
+                dropout=self.dropout,
+                unroll=self.unroll)
             return Bidirectional(rnn, name=name)
         return make_rnn(self.hidden_dim, 
             return_sequences=self.return_sequences, 
             name=name,
-            dropout=self.dropout)
-
+            dropout=self.dropout,
+            unroll=self.unroll)
 
 class Deconv(object):
     def __init__(self, upsample, conv):
@@ -183,6 +201,14 @@ class DeconvHyper(object):
     @property
     def default_name(self):
         return 'dcnn'
+
+    @property
+    def downsample(self):
+        return 1
+
+    @property
+    def return_sequences(self):
+        return True
 
     @staticmethod
     def random(r, upsample=None):

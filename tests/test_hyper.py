@@ -4,6 +4,7 @@ from keras.layers import Input
 
 import hyper_params as hp
 
+
 class TestHyper(unittest.TestCase):
     def setUp(self):
         self.r = np.random.RandomState(42)
@@ -59,11 +60,16 @@ class TestHyper(unittest.TestCase):
         self.assertEqual(128, conv.filters)
         self.assertEqual(3, conv.kernel_size)
         self.assertEqual(2, conv.strides)
+        self.assertEqual(1, conv.upsample)
+        self.assertEqual(2, conv.downsample)
+        self.assertTrue(conv.return_sequences)
 
         conv = hp.ConvHyper(512, kernel_size=6, strides=4)
         self.assertEqual(512, conv.filters)
         self.assertEqual(6, conv.kernel_size)
         self.assertEqual(4, conv.strides)
+        self.assertEqual(1, conv.upsample)
+        self.assertEqual(4, conv.downsample)
 
         conv = hp.ConvHyper.random(self.r)
         self.assertEqual(256, conv.filters)
@@ -92,11 +98,14 @@ class TestHyper(unittest.TestCase):
         self.assertEqual(128, dconv.filters)
         self.assertEqual(3, dconv.kernel_size)
         self.assertEqual(2, dconv.upsample)
+        self.assertEqual(1, dconv.downsample)
+        self.assertTrue(dconv.return_sequences)
 
         dconv = hp.DeconvHyper(512, kernel_size=6, upsample=4)
         self.assertEqual(512, dconv.filters)
         self.assertEqual(6, dconv.kernel_size)
         self.assertEqual(4, dconv.upsample)
+        self.assertEqual(1, dconv.downsample)
 
         dconv = hp.DeconvHyper.random(self.r)
         self.assertEqual(256, dconv.filters)
@@ -130,6 +139,9 @@ class TestHyper(unittest.TestCase):
         self.assertTrue(rnn.is_bidirectional)
         self.assertFalse(rnn.return_sequences)
         self.assertEqual(0, rnn.dropout)
+        self.assertEqual(1, rnn.upsample)
+        self.assertEqual(1, rnn.downsample)
+        self.assertFalse(rnn.unroll)
 
         rnn = hp.RnnHyper(512,
             is_lstm=False,
@@ -160,6 +172,14 @@ class TestHyper(unittest.TestCase):
             return_sequences=False,
             dropout=0.1)
         self.assertEqual(0.1, rnn.dropout)
+
+        rnn = hp.RnnHyper(128,
+            is_lstm=False,
+            is_bidirectional=True,
+            return_sequences=False,
+            dropout=0.1,
+            unroll=True)
+        self.assertTrue(rnn.unroll)
 
     def test_rnn_shapes(self):
         embedder_h = hp.EmbeddingHyper()
@@ -260,4 +280,33 @@ class TestHyper(unittest.TestCase):
         h = rnn(h)
 
         self.assertEqual(3, len(h.shape))
+        self.assertEqual(256, int(h.shape[2]))
+
+
+        rnn_h = hp.RnnHyper(128,
+                            is_lstm=True,
+                            is_bidirectional=False,
+                            return_sequences=True,
+                            unroll=True)
+        rnn = rnn_h.make_layer()
+
+        h = embedder(x)
+        h = rnn(h)
+
+        self.assertEqual(3, len(h.shape))
+        self.assertEqual(128, int(h.shape[1]))
+        self.assertEqual(128, int(h.shape[2]))
+
+        rnn_h = hp.RnnHyper(128,
+                            is_lstm=True,
+                            is_bidirectional=True,
+                            return_sequences=True,
+                            unroll=True)
+        rnn = rnn_h.make_layer()
+
+        h = embedder(x)
+        h = rnn(h)
+
+        self.assertEqual(3, len(h.shape))
+        self.assertEqual(128, int(h.shape[1]))
         self.assertEqual(256, int(h.shape[2]))

@@ -17,17 +17,20 @@ class TestTextEncoder(unittest.TestCase):
         rnn_h = RnnHyper(101,
                          is_lstm=False,
                          is_bidirectional=False,
-                         return_sequences=False,
+                         return_sequences=True,
                          dropout=0.1)
         hyper = te.Hyper(embed_h, [conv_h, rnn_h])
 
         self.assertEqual(256, hyper.vocab_size)
         self.assertEqual(103, hyper.embedding_dim)
-        self.assertFalse(hyper.return_sequences)
+        self.assertTrue(hyper.return_sequences)
         self.assertEqual(101, hyper.encoding.hidden_dim)
         self.assertFalse(hyper.encoding.is_lstm)
         self.assertFalse(hyper.encoding.is_bidirectional)
         self.assertEqual(0.1, hyper.encoding.dropout)
+
+        self.assertEqual(1, hyper.upsample)
+        self.assertEqual(4, hyper.downsample)
 
     def test_make_layers(self):
         embed_h = EmbeddingHyper(256, 103)
