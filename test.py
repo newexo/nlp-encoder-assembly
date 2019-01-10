@@ -6,6 +6,8 @@ from tests.test_example import TestExample
 from tests.test_hyper import TestHyper
 from tests.test_MNIST_VAE import TestMnistVae
 from tests.test_random_init import TestRandomInit
+from tests.test_text_decoder import TestTextDecoder
+from tests.test_text_encoder import TestTextEncoder
 from tests.test_TFIDF import TestTfidf
 from tests.test_VAE import TestVaeAlexAdam
 
@@ -30,6 +32,8 @@ def suite():
     s.add(TestHyper)
     s.add(TestMnistVae)
     s.add(TestRandomInit)
+    s.add(TestTextDecoder)
+    s.add(TestTextEncoder)
     s.add(TestTfidf)
     s.add(TestVaeAlexAdam)
     

@@ -5,23 +5,25 @@ from keras.optimizers import Adam
 def name_prefix(prefix):
     if prefix is None or not len(prefix.strip()):
         return ''
-    return '%s' % prefix
+    return '%s_' % prefix
+
 
 def rename(prefix, name):
     prefix = name_prefix(prefix)
     return prefix + name
 
+
 class Hyper(object):
     def __init__(self, 
-            lr=0.001, 
-            batch_size=10, 
+            lr=0.001,
+            batch_size=10,
             epochs=3):
         self.lr = lr
         self.batch_size = batch_size
         self.epochs = epochs
 
     @staticmethod
-    def Random(r):
+    def random(r):
         lr = r.choice([0.01 * (10 ** -(0.5 * i)) for i in range(6)])
         batch_size = r.choice([5, 10, 20, 50])
         epochs = 3
@@ -35,6 +37,7 @@ class Hyper(object):
     def make_optimizer(self):
         return Adam(lr=self.lr)
 
+
 class EmbeddingHyper(object):
     def __init__(self, 
             vocab_size=256, 
@@ -47,7 +50,7 @@ class EmbeddingHyper(object):
         return 'embedder'
 
     @staticmethod
-    def Random(r):
+    def random(r):
         embedding_dim = r.choice([2 ** i for i in range(6, 10)])
         return EmbeddingHyper(256, embedding_dim)
         
@@ -60,7 +63,8 @@ class EmbeddingHyper(object):
         return Embedding(self.vocab_size, 
             self.embedding_dim, 
             name=name)
-    
+
+
 class ConvHyper(object):
     def __init__(self, 
             filters, 
@@ -75,7 +79,7 @@ class ConvHyper(object):
         return 'cnn'
 
     @staticmethod
-    def Random(r):
+    def random(r):
         filters = r.choice([2 ** i for i in range(6, 10)])
         kernel_size = r.randint(8) + 2
         strides = r.randint(4) + 1
@@ -94,24 +98,27 @@ class ConvHyper(object):
             padding='causal', 
             activation='relu', 
             name=name)
-    
+
+
 class RnnHyper(object):
     def __init__(self, 
             hidden_dim, 
             is_lstm, 
             is_bidirectional, 
-            return_sequences):
+            return_sequences,
+            dropout=0):
         self.hidden_dim = hidden_dim
         self.is_lstm = is_lstm
         self.is_bidirectional = is_bidirectional
         self.return_sequences = return_sequences
+        self.dropout = dropout
         
     @property
     def default_name(self):
         return 'rnn'
 
     @staticmethod
-    def Random(r, return_sequences):
+    def random(r, return_sequences):
         hidden_dim = r.choice([2 ** i for i in range(6, 10)])
         is_lstm = bool(r.randint(2))
         is_bidirectional = bool(r.randint(2))
@@ -119,6 +126,12 @@ class RnnHyper(object):
             is_lstm, 
             is_bidirectional, 
             return_sequences=return_sequences)
+
+    @property
+    def output_dim(self):
+        if self.is_bidirectional:
+            return 2 * self.hidden_dim
+        return self.hidden_dim
 
     def display(self):
         print("RNN")
@@ -139,12 +152,25 @@ class RnnHyper(object):
             make_rnn = GRU
         if self.is_bidirectional:
             rnn = make_rnn(self.hidden_dim, 
-                return_sequences=self.return_sequences)
+                return_sequences=self.return_sequences,
+                dropout=self.dropout)
             return Bidirectional(rnn, name=name)
         return make_rnn(self.hidden_dim, 
             return_sequences=self.return_sequences, 
-            name=name)
-    
+            name=name,
+            dropout=self.dropout)
+
+
+class Deconv(object):
+    def __init__(self, upsample, conv):
+        self.upsample = upsample
+        self.conv = conv
+
+    def __call__(self, x):
+        h = self.upsample(x)
+        return self.conv(h)
+
+
 class DeconvHyper(object):
     def __init__(self, 
             filters, 
@@ -159,7 +185,7 @@ class DeconvHyper(object):
         return 'dcnn'
 
     @staticmethod
-    def Random(r, upsample=None):
+    def random(r, upsample=None):
         filters = r.choice([2 ** i for i in range(6, 10)])
         kernel_size = r.randint(8) + 2
         if upsample is None:
@@ -172,11 +198,12 @@ class DeconvHyper(object):
         print("kernel size=%d" % self.kernel_size)
         print("upsample = %d" % self.upsample)
         
-    def make_layers(self, name='dcnn'):
+    def make_layer(self, name='dcnn'):
         conv = Conv1D(self.filters, 
             self.kernel_size, 
             strides=1, 
             padding='causal', 
             activation='relu', 
             name=name)
-        return conv, UpSampling1D(self.upsample)
+        upsample = UpSampling1D(self.upsample)
+        return Deconv(upsample, conv)

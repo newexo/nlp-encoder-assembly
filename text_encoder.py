@@ -1,14 +1,22 @@
 import hyper_params as hp
 
-class Hyper(vae.Hyper):
+
+class TextEncoder(object):
     def __init__(self, embedder, layers):
         self.embedder = embedder
         self.layers = layers
 
-    @property
-    def all_layers(self):
-        return [self.embedder] + self.layers
-    
+    def __call__(self, x):
+        h = self.embedder(x)
+        for layer in self.layers:
+            h = layer(h)
+        return h
+
+
+class Hyper(object):
+    def __init__(self, embedder, layers):
+        self.embedder = embedder
+        self.layers = layers
 
     @property
     def default_name(self):
@@ -28,14 +36,15 @@ class Hyper(vae.Hyper):
     
     @property
     def return_sequences(self):
-        return self.encoding._return_sequences
+        return self.encoding.return_sequences
 
     def display(self):
         self.embedder.display()
         for layer in self.layers:
             layer.display()
     
-    def make_layers(self, name='encoder'):
+    def make_layer(self, name='encoder'):
         prefix = hp.name_prefix(name)
-        return [layer.make_layer(layer) for layer in self.all_layers]
-        
+        embedder = self.embedder.make_layer()
+        layers = [layer.make_layer(name=prefix + layer.default_name) for layer in self.layers]
+        return TextEncoder(embedder, layers)

@@ -1,6 +1,7 @@
 import unittest
 import random
 
+
 class TestExample(unittest.TestCase):
     def setUp(self):
         self.seq = list(range(10))
