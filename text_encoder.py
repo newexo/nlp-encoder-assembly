@@ -34,6 +34,7 @@ class Hyper(seq_transform.Hyper):
 
     def display(self):
         self.embedder.display()
+        print()
         seq_transform.Hyper.display(self)
     
     def make_layer(self, name='encoder'):

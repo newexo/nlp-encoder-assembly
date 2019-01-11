@@ -20,7 +20,9 @@ class Hyper(object):
     @staticmethod
     def random(r):
         lr = r.choice([0.01 * (10 ** -(0.5 * i)) for i in range(6)])
+        lr = float(lr)
         batch_size = r.choice([5, 10, 20, 50])
+        batch_size = int(batch_size)
         epochs = 3
         return Hyper(lr, batch_size, epochs)
 
@@ -47,6 +49,7 @@ class EmbeddingHyper(object):
     @staticmethod
     def random(r):
         embedding_dim = r.choice([2 ** i for i in range(6, 10)])
+        embedding_dim = int(embedding_dim)
         return EmbeddingHyper(256, embedding_dim)
         
     def display(self):
@@ -88,6 +91,7 @@ class ConvHyper(object):
     @staticmethod
     def random(r):
         filters = r.choice([2 ** i for i in range(6, 10)])
+        filters = int(filters)
         kernel_size = r.randint(8) + 2
         strides = r.randint(4) + 1
         return ConvHyper(filters, kernel_size, strides)
@@ -137,6 +141,7 @@ class RnnHyper(object):
     @staticmethod
     def random(r, return_sequences):
         hidden_dim = r.choice([2 ** i for i in range(6, 10)])
+        hidden_dim = int(hidden_dim)
         is_lstm = bool(r.randint(2))
         is_bidirectional = bool(r.randint(2))
         return RnnHyper(hidden_dim, 
@@ -213,6 +218,7 @@ class DeconvHyper(object):
     @staticmethod
     def random(r, upsample=None):
         filters = r.choice([2 ** i for i in range(6, 10)])
+        filters = int(filters)
         kernel_size = r.randint(8) + 2
         if upsample is None:
             upsample = r.randint(4) + 1
