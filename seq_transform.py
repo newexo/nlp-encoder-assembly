@@ -40,7 +40,9 @@ class Hyper(object):
         return self.transform.return_sequences
 
     def display(self):
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
+            if i:
+                print()
             layer.display()
     
     def make_layer(self, name):

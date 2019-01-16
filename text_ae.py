@@ -43,7 +43,9 @@ class TextAEHyper(object):
 
     def display(self):
         self.encoder.display()
+        print()
         self.decoder.display()
+        print()
         self.trainer.display()
 
     def make_layer(self):
