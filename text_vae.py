@@ -1,10 +1,7 @@
-import numpy as np
-
 from keras import objectives, backend as K
 from keras.layers import Input, Dense, Embedding, Bidirectional, LSTM, TimeDistributed, RepeatVector
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.utils import to_categorical
 
 import vae
 

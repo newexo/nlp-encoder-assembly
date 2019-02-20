@@ -5,6 +5,7 @@ from numpy.linalg import norm
 
 from . import random_init
 
+
 class TestRandomInit(unittest.TestCase):
     def setUp(self):
         class MockModel(object):
@@ -24,7 +25,7 @@ class TestRandomInit(unittest.TestCase):
                         0.0076664 , 0.11182723],
                         [0.11380083, 0.09527054, 0.03589908, 0.01151077, 0.08063764,
                         0.05187247, 0.01438234],
-                        [0.05835716, 0.00405273, 0.10716444, 0.03049751, 0.078079  ,
+                        [0.05835716, 0.00405273, 0.10716444, 0.03049751, 0.078079,
                         0.0367355 , 0.0612906 ]])
 
         self.expected_weights = [w13, w5_7]

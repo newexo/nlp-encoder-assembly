@@ -184,6 +184,7 @@ class RnnHyper(object):
             dropout=self.dropout,
             unroll=self.unroll)
 
+
 class Deconv(object):
     def __init__(self, upsample, conv):
         self.upsample = upsample

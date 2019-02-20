@@ -8,38 +8,35 @@ np.random.seed(1234)
 
 class BOWizer():
     def __init__(self, extendVocabList, td, vocab):
-        self.extendVocabList =extendVocabList
-        self.td =td
-        self.vocab=  vocab
+        self.extendVocabList = extendVocabList
+        self.td = td
+        self.vocab = vocab
         
     def bow(self, raw_text):
         tokenized_text = word_tokenize(raw_text)
         unked = [tfidf.toUnk(x, self.vocab) for x in list(tokenized_text)]
-        #print(unked)
         tokenlist = tfidf.toTokenList(unked, self.td)
-        #print(tokenlist)
-        bow = tfidf.toBOW(tokenlist,len(self.extendVocabList))
+        bow = tfidf.toBOW(tokenlist, len(self.extendVocabList))
         
-        bow = bow/ np.sum(bow)
+        bow = bow / np.sum(bow)
         return bow
-        
-        
-        
-        
+
+
 def get_vocab(tokenized_text, vocab_size):
-    
     C = collections.Counter(tokenized_text)
     sort_ = C.most_common()
     tokens = sort_[:vocab_size]
-    vocab = {t for t, _ in tokens}  
-    extendVocabList, td =  tfidf.getTokenDict(vocab)
-    return extendVocabList, td, vocab
+    vocab = [t for t, _ in tokens]
+    extendVocabList, td = tfidf.getTokenDict(vocab)
+    return extendVocabList, td, set(vocab)
+
 
 def tokenize_docs(list_of_docs):
     tokens = []
     for doc in list_of_docs:
         tokens.extend(word_tokenize(doc))
     return tokens
+
 
 def make_bowizer(corpus, vocabsize):
     extendVocabList, td, vocab = get_vocab(tokenize_docs(corpus), vocabsize)
@@ -58,5 +55,3 @@ def test():
 
 if __name__ == "__main__":
     test()
-
-

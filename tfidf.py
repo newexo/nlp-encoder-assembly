@@ -3,6 +3,7 @@ import collections
 import numpy as np
 from pathlib import Path
 
+
 def readStopList():
     #Clean the stopword list
     stoplist = []
@@ -22,6 +23,7 @@ def readStopList():
 
     #print(stoplist)
     return stoplist
+
 
 def collectPhrases(sentences, stoplist):
     # Create list of phrases using stopwords
@@ -78,6 +80,7 @@ def collectWords(sentences):
 
     return wordList
 
+
 def stripPunctWS(words):
     stripped = []
     re2 = re.compile(r'[^\.!?,"(){}\*:]*[\.!?,"(){}\*:]')
@@ -88,30 +91,37 @@ def stripPunctWS(words):
             stripped.append(w)
     return stripped
 
+
 def toLower(words):
     return [w.lower() for w in words]
+
 
 def getVocab(words, threshold=99):
     wc = collections.Counter(swd)
     return {w for w in wc if wc[w] > threshold}
+
 
 def vocabList(vocabSet):
     vl = list(vocabSet)
     vl.sort
     return vl
 
+
 def toUnk(w, vocabSet, unk='unk'):
     if w in vocabSet:
         return w
     return unk
+
 
 def getTokenDict(vocabList, unk='unk'):
     extendVocabList = [unk] + list(vocabList)
     td = {extendVocabList[i]:i for i in range(len(extendVocabList))}
     return extendVocabList, td
 
+
 def toTokenList(words, td):
     return [td[w] for w in words]
+
 
 def toBOW(tokens, vocabSize):
     x = np.zeros(vocabSize)
@@ -121,6 +131,7 @@ def toBOW(tokens, vocabSize):
             x[key] = cc[key]
         x / float(np.sum(x))
     return x
+
 
 def computeIDF(docList):
     # Calculates the weight of rare words across all docs
@@ -137,9 +148,9 @@ def computeIDF(docList):
 
     return idfDict
 
+
 def computeTFIDF(tfBow, idfs):
     tfidf = {}
     for word, val in tfBow.items():
         tfidf[word] = val*idfs[word]
     return tfidf
-    
