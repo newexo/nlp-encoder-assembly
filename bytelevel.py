@@ -9,9 +9,9 @@ def encode(a):
     return np.array([str2nparray(row) for row in a])
 
 
-def onehot(a):
+def onehot(a, vocab_size=256):
     m, n = a.shape
-    temp = np.zeros((m, n, 256))
+    temp = np.zeros((m, n, vocab_size))
     temp[np.expand_dims(np.arange(m), axis=0).reshape(m, 1), np.repeat(np.array([np.arange(n)]), m, axis=0), a] = 1
     return temp
 
@@ -27,3 +27,5 @@ def decode(a):
 def prediction2str(p):
     a = p.argmax(axis=2)
     return decode(a)
+
+

@@ -3,6 +3,8 @@ from nltk import word_tokenize
 import collections
 import tfidf
 import numpy as np
+from keras.preprocessing.sequence import pad_sequences
+import bytelevel
 
 
 class BOWizer():
@@ -41,6 +43,52 @@ def make_bowizer(corpus, vocabsize):
     extendVocabList, td, vocab = get_vocab(tokenize_docs(corpus), vocabsize)
     bow = BOWizer(extendVocabList, td, vocab)
     return bow
+
+
+class TokenMaker(object):
+    def __init__(self, corpus, vocab_size, should_lower=True, unk='unk'):
+        self.unk = unk
+        self.should_lower = should_lower
+        tokenized_text = tokenize_docs(corpus)
+        tokenized_text = self.canonical(tokenized_text)
+        self.vocab_size = vocab_size
+        self.extendVocabList, self.td, self.vocab = get_vocab(tokenized_text, vocab_size, unk=self.unk)
+        
+    def canonical(self, words):
+        if self.should_lower:
+            return [word.lower() for word in words]
+        return words
+    
+    def vector(self, text):
+        words = word_tokenize(text)
+        words = [tfidf.toUnk(word, self.vocab, self.unk) for word in words]
+        return [self.td[word] for word in words]
+    
+    def x(self, lines, maxlen=None):
+        vectors = [self.vector(line) for line in lines]
+        return pad_sequences(vectors, maxlen=maxlen)
+    
+    def y(self, x):
+        return bytelevel.onehot(x, self.vocab_size + 1)
+
+
+class SlicedWordData(object):
+    def __init__(self, lines, maxlen, tokenmaker):
+        self.line = lines
+        self.maxlen = maxlen
+        self.tokenmaker = tokenmaker
+        self.x = self.tokenmaker.x(lines, maxlen=self.maxlen)
+        self.y = self.tokenmaker.y(self.x)
+        
+    @staticmethod
+    def Random(train_text, test_text, linelen, maxlen, n, r, tokenmaker):
+        def random_slice(data):
+            i = r.randint(len(data) - linelen)
+            return data[i : i + linelen]
+        train_slices = [random_slice(train_text) for _ in range(n)]
+        test_slices = [random_slice(test_text) for _ in range(int(0.1 * n))]
+
+        return SlicedWordData(train_slices, maxlen, tokenmaker), SlicedWordData(test_slices, maxlen, tokenmaker)
 
 
 def test():
