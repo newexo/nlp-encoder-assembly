@@ -3,7 +3,6 @@ from nltk import word_tokenize
 import collections
 import tfidf
 import numpy as np
-np.random.seed(1234)
 
 
 class BOWizer():
@@ -22,12 +21,12 @@ class BOWizer():
         return bow
 
 
-def get_vocab(tokenized_text, vocab_size):
+def get_vocab(tokenized_text, vocab_size, unk='unk'):
     C = collections.Counter(tokenized_text)
     sort_ = C.most_common()
     tokens = sort_[:vocab_size]
     vocab = [t for t, _ in tokens]
-    extendVocabList, td = tfidf.getTokenDict(vocab)
+    extendVocabList, td = tfidf.getTokenDict(vocab, unk=unk)
     return extendVocabList, td, set(vocab)
 
 
