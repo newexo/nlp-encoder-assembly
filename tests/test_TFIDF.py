@@ -1,6 +1,7 @@
 import unittest
 import tfidf
 
+
 class TestTfidf(unittest.TestCase):
     def setUp(self):
         self.seq = list(range(10))
@@ -29,10 +30,3 @@ class TestTfidf(unittest.TestCase):
                       ['in my veracity--the probability being that the public at large would one of the principal causes which prevented me from complying with the suggestions of my advisers.']]
         testWords = tfidf.collectWords(testSentences)
         self.assertEqual('extraordinary', testWords[0])
-
-    # def testWordFreq(self):
-    #     testWords = ['extraordinary', 'series', 'of', 'adventure', 'in', 'the', 'South', 'Seas', 'and', 'elsewhere']
-    #     testWFreqs = tfidf.wordFreq(testWords)
-    #     self.assertEqual(2, testWFreqs['in'])
-    #     self.assertEqual(1, testWFreqs['adventure']) 
-        #self.assertFalse(False, "Incomplete test")        

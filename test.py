@@ -1,5 +1,6 @@
 import unittest
 
+from tests.test_bowizer import TestBowizer
 from tests.test_bytelevel import TestBytelevel
 from tests.test_doc_loader import TestDocLoader
 from tests.test_example import TestExample
@@ -12,7 +13,7 @@ from tests.test_TFIDF import TestTfidf
 from tests.test_VAE import TestVaeAlexAdam
 
 
-class countsuite():
+class CountSuite:
     def __init__(self):
         self.count = 0
         self.s = unittest.TestSuite()
@@ -24,8 +25,9 @@ class countsuite():
 
 
 def suite():
-    s = countsuite()
+    s = CountSuite()
 
+    s.add(TestBowizer)
     s.add(TestBytelevel)
     s.add(TestDocLoader)
     s.add(TestExample)
