@@ -6,7 +6,7 @@ import numpy as np
 from numpy.linalg import norm
 import tensorflow as tf
 
-from MNIST_VAE import Hyper, MnistVae
+from nlp_enc.MNIST_VAE import Hyper, MnistVae
 from . import random_init
 
 import os

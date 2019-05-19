@@ -1,5 +1,5 @@
 import unittest
-import tfidf
+from nlp_enc import tfidf
 
 
 class TestTfidf(unittest.TestCase):

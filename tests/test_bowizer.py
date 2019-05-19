@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from numpy.linalg import norm
 
-import bowizer
+from nlp_enc import bowizer
 
 
 class TestBowizer(unittest.TestCase):

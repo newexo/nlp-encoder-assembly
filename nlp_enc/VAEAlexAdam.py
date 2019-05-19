@@ -3,7 +3,7 @@
 
 from keras.layers import Dense
 
-import vae_old as vae
+from nlp_enc import vae_old as vae
 
 
 class VAEAlexAdam(vae.vae):

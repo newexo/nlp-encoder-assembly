@@ -1,6 +1,6 @@
 from keras.layers import Dense, RepeatVector, TimeDistributed
 
-import seq_transform
+from nlp_enc import seq_transform
 
 
 class TextDecoder(seq_transform.SeqTransform):

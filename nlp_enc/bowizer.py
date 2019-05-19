@@ -1,10 +1,10 @@
 import nltk
 from nltk import word_tokenize
 import collections
-import tfidf
+from nlp_enc import tfidf
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
-import bytelevel
+from nlp_enc import bytelevel
 
 
 class BOWizer():

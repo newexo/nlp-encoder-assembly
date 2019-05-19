@@ -1,5 +1,5 @@
 import unittest
-import docLoader
+from nlp_enc import docLoader
 
 
 class TestDocLoader(unittest.TestCase):

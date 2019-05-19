@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from keras.layers import Input
 
-import hyper_params as hp
+from nlp_enc import hyper_params as hp
 
 
 class TestHyper(unittest.TestCase):

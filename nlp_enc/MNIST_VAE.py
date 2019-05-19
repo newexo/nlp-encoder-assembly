@@ -2,7 +2,7 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from keras.optimizers import RMSprop
 
-import vae
+from nlp_enc import vae
 
 
 class Hyper(vae.Hyper):

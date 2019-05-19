@@ -5,8 +5,8 @@ import tensorflow as tf
 
 from numpy.random import seed
 
-import vae_old as vae
-from VAEAlexAdam import VAEAlexAdam
+from nlp_enc import vae_old as vae
+from nlp_enc.VAEAlexAdam import VAEAlexAdam
 from . import random_init
 
 import os

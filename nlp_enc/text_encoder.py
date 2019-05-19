@@ -1,4 +1,4 @@
-import seq_transform
+from nlp_enc import seq_transform
 
 
 class TextEncoder(seq_transform.SeqTransform):

@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from numpy.linalg import norm
 
-import bytelevel
+from nlp_enc import bytelevel
 
 
 class TestBytelevel(unittest.TestCase):

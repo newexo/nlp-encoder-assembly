@@ -1,7 +1,7 @@
 import unittest
 
-from hyper_params import *
-import text_decoder as td
+from nlp_enc.hyper_params import *
+from nlp_enc import text_decoder as td
 
 
 class TestTextDecoder(unittest.TestCase):

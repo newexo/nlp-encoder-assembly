@@ -1,4 +1,4 @@
-import hyper_params as hp
+from nlp_enc import hyper_params as hp
 
 
 class SeqTransform(object):
