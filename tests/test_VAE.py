@@ -1,17 +1,17 @@
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 import unittest
 import numpy as np
 from numpy.linalg import norm
 import tensorflow as tf
 
-from keras.backend import backend as K
 from numpy.random import seed
 
 import vae_old as vae
 from VAEAlexAdam import VAEAlexAdam
 from . import random_init
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 
 class TestVaeAlexAdam(unittest.TestCase):
     def setUp(self):
@@ -166,7 +166,6 @@ class TestVaeAlexAdam(unittest.TestCase):
             self.assertAlmostEqual(0, norm(u - v))
 
     def test_save_and_load_vae(self):
-        loaded = False
         MAX_LENGTH = 300
         NUM_WORDS = 1000
         h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
@@ -195,8 +194,6 @@ class TestVaeAlexAdam(unittest.TestCase):
         session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
         sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
 
-        loaded = False
-
         MAX_LENGTH = 300
         NUM_WORDS = 1000
         h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
@@ -222,8 +219,6 @@ class TestVaeAlexAdam(unittest.TestCase):
 
         tf.set_random_seed(seed_value)
         
-        loaded = False
-
         MAX_LENGTH = 300
         NUM_WORDS = 1000
         h = vae.Hyper(vocab_size=NUM_WORDS, max_length=MAX_LENGTH)
@@ -231,7 +226,6 @@ class TestVaeAlexAdam(unittest.TestCase):
         temp = np.zeros((self.X.shape[0], MAX_LENGTH, NUM_WORDS))
         temp[np.expand_dims(np.arange(self.X.shape[0]), axis=0).reshape(self.X.shape[0], 1), np.repeat(np.array([np.arange(MAX_LENGTH)]), self.X.shape[0], axis=0), self.X] = 1
         self.X_one_hot = temp
-
 
         model = VAEAlexAdam(h)
         model.autoencoder.evaluate(x=self.X, y={'decoded_mean': self.X_one_hot, 'pred': self.y}, batch_size=1)

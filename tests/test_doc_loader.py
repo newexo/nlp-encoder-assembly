@@ -1,9 +1,10 @@
 import unittest
 import docLoader
 
+
 class TestDocLoader(unittest.TestCase):
     def setUp(self):
-        self.seq = list(range(10))
+        pass
 
     def tearDown(self):
         pass

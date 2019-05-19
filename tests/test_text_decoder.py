@@ -43,7 +43,6 @@ class TestTextDecoder(unittest.TestCase):
         self.assertEqual(64, h.shape[1])
         self.assertEqual(256, h.shape[2])
 
-
         h = decoder(x, 128)
         self.assertEqual(3, len(h.shape))
         self.assertEqual(128, h.shape[1])

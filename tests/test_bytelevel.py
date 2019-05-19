@@ -4,6 +4,7 @@ from numpy.linalg import norm
 
 import bytelevel
 
+
 class TestBytelevel(unittest.TestCase):
     def setUp(self):
         self.r = np.random.RandomState(42)

@@ -1,6 +1,4 @@
 import unittest
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from pathlib import Path
 
@@ -8,12 +6,12 @@ import numpy as np
 from numpy.linalg import norm
 import tensorflow as tf
 
-from keras.backend import backend as K
-from numpy.random import seed
-
-import vae
 from MNIST_VAE import Hyper, MnistVae
 from . import random_init
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 
 class TestMnistVae(unittest.TestCase):
     @property
@@ -34,7 +32,7 @@ class TestMnistVae(unittest.TestCase):
 
         tf.set_random_seed(42)
         session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-        sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+        self.sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
         np.random.seed(42)
 
 
