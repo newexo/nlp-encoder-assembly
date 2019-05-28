@@ -1,4 +1,6 @@
 import unittest
+
+import nlp_enc.token_maker
 import numpy as np
 from numpy.linalg import norm
 
@@ -62,7 +64,7 @@ So that the firm foot ever was the lower."""
     def test_get_vocab(self):
         tokenized_text = bowizer.word_tokenize(self.text)
         vocab_size = 5
-        extendVocabList, td, vocab = bowizer.get_vocab(tokenized_text, vocab_size)
+        extendVocabList, td, vocab = nlp_enc.token_maker.get_vocab(tokenized_text, vocab_size)
 
         expected = ['unk', ',', 'the', 'I', '.', 'had']
         actual = extendVocabList
@@ -77,15 +79,14 @@ So that the firm foot ever was the lower."""
         self.assertEqual(expected, actual)
 
     def test_tokenize_docs(self):
-        actual = bowizer.tokenize_docs(self.lines)
+        actual = nlp_enc.token_maker.tokenize_docs(self.lines)
         expected = ['Midway', 'upon', 'the', 'journey', 'of', 'our', 'life', 'I', 'found', 'myself', 'within', 'a', 'forest', 'dark', ',', 'For', 'the', 'straightforward', 'pathway', 'had', 'been', 'lost', '.']
         self.assertEqual(expected, actual)
 
     def test_BOW(self):
-        tokenized_text = bowizer.word_tokenize(self.text)
         vocab_size = 5
-        extendVocabList, td, vocab = bowizer.get_vocab(tokenized_text, vocab_size)
-        wizer = bowizer.BOWizer(extendVocabList, td, vocab)
+        tm = nlp_enc.token_maker.TokenMaker([self.text], vocab_size, should_lower=False)
+        wizer = bowizer.BOWizer(tm)
         actual = wizer.bow(self.text)
         expected = np.array([0.75091575, 0.08058608, 0.06227106, 0.05128205, 0.02930403, 0.02564103])
         self.assertAlmostEqual(0, norm(expected - actual))
