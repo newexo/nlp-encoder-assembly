@@ -2,6 +2,7 @@ import unittest
 
 from tests.test_bowizer import TestBowizer
 from tests.test_bytelevel import TestBytelevel
+from tests.test_data_set import TestDataSet
 from tests.test_doc_loader import TestDocLoader
 from tests.test_example import TestExample
 from tests.test_hyper import TestHyper
@@ -29,6 +30,7 @@ def suite():
 
     s.add(TestBowizer)
     s.add(TestBytelevel)
+    s.add(TestDataSet)
     s.add(TestDocLoader)
     s.add(TestExample)
     s.add(TestHyper)

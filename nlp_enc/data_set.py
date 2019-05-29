@@ -1,15 +1,18 @@
-import bytelevel
+from . import bytelevel
 from keras.preprocessing.sequence import pad_sequences
+
 
 def make_chunks(data, count=100):
     n = int(len(data) / float(count))
     return [data[i:i+n] for i in range(0, len(data), n)]
+
 
 def make_train_test(chunks, train_ratio=0.9):
     n = int(len(chunks) * train_ratio)
     train = ''.join(chunks[:n])
     test = ''.join(chunks[n:])
     return train, test
+
 
 class SlicedData(object):
     def __init__(self, text, max_len):
