@@ -5,10 +5,11 @@ from nlp_enc import tfidf, bytelevel
 from nltk import word_tokenize
 
 
-def get_vocab(tokenized_text, vocab_size, unk='unk'):
+def get_vocab(tokenized_text, vocab_size=None, unk='unk'):
     C = collections.Counter(tokenized_text)
-    sort_ = C.most_common()
-    tokens = sort_[:vocab_size]
+    tokens = C.most_common()
+    if vocab_size is not None:
+        tokens = tokens[:vocab_size]
     vocab = [t for t, _ in tokens]
     extendVocabList, td = tfidf.getTokenDict(vocab, unk=unk)
     return extendVocabList, td, set(vocab)
@@ -22,13 +23,13 @@ def tokenize_docs(list_of_docs):
 
 
 class TokenMaker(object):
-    def __init__(self, corpus, vocab_size, should_lower=True, unk='unk'):
+    def __init__(self, corpus, vocab_size=None, should_lower=True, unk='unk'):
         self.unk = unk
         self.should_lower = should_lower
         tokenized_text = tokenize_docs(corpus)
         tokenized_text = self.canonical(tokenized_text)
-        self.vocab_size = vocab_size
         self.extendVocabList, self.td, self.vocab = get_vocab(tokenized_text, vocab_size, unk=self.unk)
+        self.vocab_size = len(self.vocab)
 
     def canonical(self, words):
         if self.should_lower:
